@@ -45,6 +45,17 @@
 #let result_join(old, new) = {
   if old == () { new() } else { old }
 }
+#let result_join_array(old, arr, fn) = {
+  result_join(
+    old,
+    () => arr.fold((), (old, new) => result_join(old, () => {
+      fn(new)
+    }))
+  )
+}
+#let result_join_dict(old, map, fn) = {
+  result_join_array(old, map.keys(), k => fn(k, map.at(k)))
+}
 
 #let has_type_of(e) = has_type(type(e))
 
@@ -102,14 +113,7 @@
 
 // Products
 #let array(t) = typedef("array { ... }", arr =>
-  result_join(has_type_of(())(arr), () =>
-    arr.fold(
-      (),
-      (old, new) => result_join(old, () =>
-        (t.fn)(new)
-      )
-    )
-  )
+  result_join_array(has_type_of(())(arr), arr, t.fn)
 )
 #verify(array(bool), (true, false, true))
 #falsify(array(bool), (true, 1, true))
@@ -125,48 +129,41 @@
 // - checking that all keys in the type exist in the object and, these recursively match
 // - checking that all keys in the object are declared in the type
 #let map_types_match(t, obj) = {
-  result_join(
-    t.keys().fold(
+  result_join_dict(
+    result_join_dict(
       (),
-      (old, field) => result_join(old, () =>
+      t, (field, ft) => {
         if not contains_field(obj, field) {
           ( err: "Should have field " + repr(field) )
         } else {
-          let ft = t.at(field)
-          let fv = obj.at(field)
-          (ft.fn)(fv)
+          (ft.fn)(obj.at(field))
         }
-      )
-    ), () =>
-      obj.keys().fold(
-        (), (old, field) => result_join(old, () =>
-          if not contains_field(t, field)  {
-            ( err: "No such field " + repr(field) )
-          } else {
-            ()
-          }
-        )
-      )
-    )
+      }
+    ),
+    obj, (field, _) => {
+      if not contains_field(t, field)  {
+        ( err: "No such field " + repr(field) )
+      } else {
+        ()
+      }
+    },
+  )
 }
 
 // Check that the type is a tuple with the right fields
 // I.e. lengths match, and the types/values match 1-1 (zip them together)
 #let tup_types_match(tup, obj) = {
-  result_join(
+  result_join_array(
     if tup.len() == obj.len() {
       ()
     } else {
       ( err: "Mismatched lengths" )
-    }, () =>
-      tup.zip(obj).fold(
-        (),
-        (old, vs) => result_join(old, () => {
-          let (t, v) = vs;
-          (t.fn)(v)
-        })
-      )
-    )
+    },
+    tup.zip(obj), (vs) => {
+      let (t, v) = vs;
+      (t.fn)(v)
+    }
+  )
 }
 
 #let struct(..args) = typedef("struct { ... }", obj => {
