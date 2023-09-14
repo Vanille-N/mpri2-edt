@@ -7,8 +7,8 @@
 #let algos = rgb("d3869b").lighten(50%)
 #let data = rgb("fb4934").lighten(50%)
 
-#let Room = tt.typedef(tt.content)
-#let Class = tt.typedef(tt.struct(name: tt.content, color: tt.color))
+#let Room = tt.typedef("Room", tt.content)
+#let Class = tt.typedef("Class", tt.struct(name: tt.content, color: tt.color))
 #let class(col, name) = {
   tt.is(tt.color, col)
   tt.is(tt.content, name)
@@ -57,8 +57,8 @@
 #let algo_verif = class(verif)[Algorithmic Verification]
 #let data_analysis = class(algos)[Data Analysis]
 
-#let SlotDescr = tt.typedef(tt.array(tt.int))
-#let TimeClass = tt.typedef(tt.struct(descr: Class, room: Room, slot: SlotDescr, sem: SlotDescr, ects: tt.int))
+#let SlotDescr = tt.typedef("SlotDescr", tt.array(tt.int))
+#let TimeClass = tt.typedef("TimeClass", tt.struct(descr: Class, room: Room, slot: SlotDescr, sem: SlotDescr, ects: tt.int))
 #let full(descr, room) = {
   tt.is(Class, descr)
   tt.is(Room, room)
@@ -78,10 +78,10 @@
 }
 
 // Static timetable
-#let Period = tt.typedef(tt.array(TimeClass))
-#let Periods = tt.typedef(tt.struct(fst: Period, snd: Period, thr: Period))
-#let Day = tt.typedef(tt.struct(name: tt.str, periods: Periods))
-#let Week = tt.typedef(tt.struct(mon: Day, tue: Day, wed: Day, thu: Day, fri: Day))
+#let Period = tt.typedef("Period", tt.array(TimeClass))
+#let Periods = tt.typedef("Periods", tt.struct(fst: Period, snd: Period, thr: Period))
+#let Day = tt.typedef("Day", tt.struct(name: tt.str, periods: Periods))
+#let Week = tt.typedef("Week", tt.struct(mon: Day, tue: Day, wed: Day, thu: Day, fri: Day))
 #let week = tt.ret(Week, (
   mon: (
     name: "Monday",
