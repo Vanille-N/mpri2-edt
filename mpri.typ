@@ -107,14 +107,14 @@
     periods: (
       fst: (
         short_sem(1, sync_sys)[1004],
-          full(sec_protocols)[1002],
-        ),
+        full(sec_protocols)[1002],
+      ),
       snd: (
         short_sem(1, lang_mod)[1004],
-          short_sem(1, graph_mining)[1002],
-          short_sem(2, param_compl)[1002],
-          short_sem(2, quantum_crypto)[1004],
-        ),
+        short_sem(1, graph_mining)[1002],
+        short_sem(2, param_compl)[1002],
+        short_sem(2, quantum_crypto)[1004],
+      ),
       thr: (
         full(linear_logic)[1002],
         short_sem(1, poly_sys)[1004],
