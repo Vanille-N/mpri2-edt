@@ -32,39 +32,39 @@
 // Note that typechecking is naive and may be costly on large datasets.
 // Improvements will be designed if necessary.
 
-#let has_type(t) = (obj) => {
-  if t == type(obj) {
+#let has_type_of(t) = (obj) => {
+  if type(t) == type(obj) {
     ()
   } else {
     (
-      err: "Object " + repr(obj) + " does not have the right type: expected " + str(t) + ", got " + str(type(obj)) + ".",
+      err: "Object " + repr(obj) + " does not have the right type: expected " + str(type(t)) + ", got " + str(type(obj)) + ".",
     )
   }
 }
 
-#let result_join(old, new) = {
-  if old == () { new() } else { old }
+#let result_join_array(arr, fn) = {
+  let curr = ()
+  for new in arr {
+    if curr != () { return curr }
+    curr = fn(new)
+  }
+  curr
 }
-#let result_join_array(old, arr, fn) = {
-  result_join(
-    old,
-    () => arr.fold((), (old, new) => result_join(old, () => {
-      fn(new)
-    }))
-  )
+#let result_join_dict(map, fn) = {
+  let curr = ()
+  for (k, v) in map {
+    if curr != () { return curr }
+    curr = fn(k, v)
+  }
+  curr
 }
-#let result_join_dict(old, map, fn) = {
-  result_join_array(old, map.keys(), k => fn(k, map.at(k)))
-}
-
-#let has_type_of(e) = has_type(type(e))
 
 #let typing_assert(r) = { if r != () { panic(r.err) } }
 #let verify(t, o) = { typing_assert((t.fn)(o)); [ ok #o \ ] }
 #let falsify(t, o) = { assert((t.fn)(o) != ()); [ #{ (t.fn)(o).err } \ ] }
 
 #let typedef(name, t) = {
-  if has_type_of((:))(t) == () {
+  if type((:)) == type(t) {
     ( label: name, fn: t.fn )
   } else {
     ( label: name, fn: t )
@@ -97,9 +97,7 @@
   ts.fold(
     ( err: "None of " + ts.map(t => t.label).join(", ") + " match " + repr(obj) ),
     (old, add) =>
-      if old == () {
-        ()
-      } else if (add.fn)(obj) == () {
+      if old == () or (add.fn)(obj) == () {
         ()
       } else {
         old
@@ -112,9 +110,10 @@
 #falsify(union(str, int), true)
 
 // Products
-#let array(t) = typedef("array { ... }", arr =>
-  result_join_array(has_type_of(())(arr), arr, t.fn)
-)
+#let array(t) = typedef("array { ... }", arr => {
+  let old = has_type_of(())(arr)
+  if old != () { old } else { result_join_array(arr, t.fn) }
+})
 #verify(array(bool), (true, false, true))
 #falsify(array(bool), (true, 1, true))
 #verify(array(union(int, bool)), (true, 1, true))
@@ -123,67 +122,75 @@
 #falsify(array(array(array(bool))), (((true,), (true)), ((true,), (true))))
 #verify(array(array(array(bool))), (((true,), (true,)), ((true,), (true,))))
 
+// Test nesting
+// We don't have much room in terms of maximum recursion limit, so ensuring
+// that our typechecking assertions don't consume too much function depth
+// is actually relevant.
+#let nested(n, node, leaf) = {
+  if n <= 0 { leaf } else { node(nested(n - 1, node, leaf)) }
+}
+#{ let n = 30; verify(nested(n, array, bool), nested(n, x => (x,), true)) }
+
 #let contains_field(map, field) = { map.at(field, default: none) == map.at(field, default: 1) }
-// Check that the type is a dictionnary with the right fields
-// This simply consists of
-// - checking that all keys in the type exist in the object and, these recursively match
-// - checking that all keys in the object are declared in the type
-#let map_types_match(t, obj) = {
-  result_join_dict(
-    result_join_dict(
-      (),
-      t, (field, ft) => {
+#let struct(..args) = typedef("struct { ... }", obj => {
+  // Needs to be positional XOR named arguments
+  let map = args.named()
+  let tup = args.pos()
+  if type((:)) == type(obj) {
+    // Check that the type is a dictionnary with the right fields
+    // This simply consists of
+    // - checking that all keys in the type exist in the object and, these recursively match
+    // - checking that all keys in the object are declared in the type
+    let pre = result_join_dict(
+      map, (field, ft) => {
         if not contains_field(obj, field) {
           ( err: "Should have field " + repr(field) )
         } else {
           (ft.fn)(obj.at(field))
         }
       }
-    ),
-    obj, (field, _) => {
-      if not contains_field(t, field)  {
-        ( err: "No such field " + repr(field) )
-      } else {
-        ()
-      }
-    },
-  )
-}
-
-// Check that the type is a tuple with the right fields
-// I.e. lengths match, and the types/values match 1-1 (zip them together)
-#let tup_types_match(tup, obj) = {
-  result_join_array(
+    )
+    if pre != () { return pre }
+    result_join_dict(
+      obj, (field, _) => {
+        if not contains_field(map, field)  {
+          ( err: "No such field " + repr(field) )
+        } else {
+          ()
+        }
+      },
+    )
+  } else if type(()) == type(obj) {
+    // Check that the type is a tuple with the right fields
+    // I.e. lengths match, and the types/values match 1-1 (zip them together)
     if tup.len() == obj.len() {
-      ()
-    } else {
-      ( err: "Mismatched lengths" )
-    },
-    tup.zip(obj), (vs) => {
-      let (t, v) = vs;
-      (t.fn)(v)
-    }
-  )
-}
-
-#let struct(..args) = typedef("struct { ... }", obj => {
-  // Needs to be positional XOR named arguments
-  let map = args.named()
-  let tup = args.pos()
-  if has_type_of((:))(obj) == () {
-    map_types_match(map, obj)
-  } else if has_type_of(())(obj) == () {
-    tup_types_match(tup, obj)
-  } else {
-    ( err: "Object is not a dictionnary or an array" )
-  }
+      result_join_array(
+        tup.zip(obj), (vs) => {
+          let (t, v) = vs;
+          (t.fn)(v)
+        }
+      )
+    } else { ( err: "Mismatched lengths" ) }
+  } else { ( err: "Object is not a dictionnary or an array" ) }
 })
 #verify(struct(foo: str, bar: int, baz: bool), (foo: "abc", bar: 1, baz: false))
 #falsify(struct(foo: str, bar: int, baz: bool), (foo: "abc", bar: 1))
 #falsify(struct(foo: str, baz: bool), (foo: "abc", bar: 1, baz: false))
 #verify(struct(int, bool, str), (1, true, "foo"))
 
+#{ let n = 20; verify(nested(n, x => struct(foo: x), bool), nested(n, x => (foo: x), true)) }
+
 // Demo
 #let Person = typedef("Person", struct(age: int, name: str))
 #let jack = ( age: 31, name: "Jack" )
 #is(Person, jack)
+
+#let Pair(T, U) = typedef("Pair", struct(T, U))
+#let swap = (T, U) => (tup) => {
+  is(Pair(T, U), tup)
+  let (t, u) = tup
+  ret(Pair(U, T), (u, t))
+}
+#let thing = (42, "foobar")
+#is(Pair(int, str), thing)
+#is(Pair(str, int), swap(int, str)(thing))
