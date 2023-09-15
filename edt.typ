@@ -11,7 +11,7 @@
   radius: 6pt
 )
 #let full_cell = cell.with(height: 26%)
-#let half_cell = cell.with(height: 11.5%)
+#let half_cell = cell.with(height: 11.3%)
 
 #let slot(chosen, classes) = [
   #tt.is(tt.array(mpri.Class), chosen)
@@ -79,7 +79,7 @@
         // |    |    |
         // +----+----+
         #grid(
-          columns: (1fr, 1fr),
+          columns: (48.5%, 48.5%),
           class_cell(full_cell, occupied.at(1).at(1)),
           class_cell(full_cell, occupied.at(1).at(2)),
         )
