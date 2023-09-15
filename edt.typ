@@ -19,32 +19,32 @@
   tt.is(tt.array(mpri.TimeClass), classes)
   let occupied = (none, (none, 0, 0), (none, 0, 0))
   // Check for conflicts: two classes on the same slot should not occur
-  for (idx, class) in classes.enumerate() [
-    #if class.descr in chosen [
-      #for slot in class.slot [
-        #for sem in class.sem [
-          #if occupied.at(slot).at(sem) > 0 [
-            #panic[There is a conflict in your chosen classes]
-          ] else {
+  for (idx, class) in classes.enumerate() {
+    if class.descr in chosen {
+      for slot in class.slot {
+        for sem in class.sem {
+          if occupied.at(slot).at(sem) > 0 {
+            panic[There is a conflict in your chosen classes]
+          } else {
             occupied.at(slot).at(sem) = idx + 1
           }
-        ]
-      ]
-    ]
-  ]
-  let class_cell(num) = [
-    #if num > 0 [
-      #let class = classes.at(num - 1)
-      #cell.with(fill: class.descr.color)()[
+        }
+      }
+    }
+  }
+  let class_cell(num) = {
+    if num > 0 {
+      let class = classes.at(num - 1)
+      cell.with(fill: class.descr.color)()[
         #align(center)[
           #text(size: 11pt, weight: "bold")[#class.descr.name] \
           #text(size: 10pt)[Room #class.room]
         ]
       ]
-    ] else [
-      #cell.with(fill: blank_color)()
-    ]
-  ]
+    } else {
+      cell.with(fill: blank_color)()
+    }
+  }
   // Now we need to determine the pattern to know how to split
   if occupied.at(1).at(1) == occupied.at(1).at(2) {
     if occupied.at(1).at(1) == occupied.at(2).at(1) {
