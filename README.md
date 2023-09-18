@@ -14,10 +14,10 @@ additional external tools.
 
 ```sh
 # From the project root
-$ cp demo/blank.typ demo/my.typ
+$ cp demo/blank.typ my.typ
 # Use your favorite editor to uncomment (remove the leading '//') the classes you want to choose
-$ typst compile --root . demo/my.typ
-# If no errors occured, `demo/my.pdf` is now your rendered timetable
+$ typst compile my.typ
+# If no errors occured, `my.pdf` is now your rendered timetable
 ```
 
 ## External classes
@@ -50,7 +50,7 @@ The Typst error message should guide you.
 
 #### `typtyp.typ` error
 
-An `error: assertion failed` in file `typtyp.typ`, if it occurs inside `demo/my.typ`
+An `error: assertion failed` in file `typtyp.typ`, if it occurs inside `my.typ`
 (see last item of the error message backtrace), likely indicates that you accidentally
 introduced in the list of `chosen` classes an element that is not properly formatted
 as a class.
