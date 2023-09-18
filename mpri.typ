@@ -92,7 +92,7 @@
       ),
       snd: (
         short_slot(1, symbolic_dyn)[1002],
-        short_slot(1, advanced_verif)[1004],
+        full(advanced_verif)[1004],
       ),
       thr: (
         short_sem(1, proof_systems)[1004],
