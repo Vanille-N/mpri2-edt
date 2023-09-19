@@ -20,101 +20,38 @@
   tt.is(tt.array(mpri.Class), chosen)
   tt.is(tt.array(mpri.TimeClass), classes)
   let occupied = (none, (none, 0, 0), (none, 0, 0))
-  // Check for conflicts: two classes on the same slot should not occur
+
+  let class_cell(class, dy: 0pt, dx: 0pt, height: available_height_per_slot, width: 100%) = {
+    place(
+      top + left,
+      dx: dx,
+      dy: dy,
+      cell.with(height: height, width: width, fill: class.descr.color)()[
+        #align(center)[
+          #text(size: 11pt, weight: "bold")[#class.descr.name] \
+          #text(size: 10pt)[Room #class.room]
+        ]
+      ]
+    )
+  }
+
   for (idx, class) in classes.enumerate() {
     if class.descr in chosen {
-      for slot in class.slot {
-        for sem in class.sem {
-          if occupied.at(slot).at(sem) > 0 {
-            panic[There is a conflict in your chosen classes]
-          } else {
-            occupied.at(slot).at(sem) = idx + 1
-          }
-        }
-      }
-    }
-  }
-  let class_cell(num, dy: 0pt, dx: 0pt, height: available_height_per_slot, width: 100%) = {
-    if num > 0 {
-      let class = classes.at(num - 1)
-      place(
-        top + left,
-        dx: dx,
-        dy: dy,
-        cell.with(height: height, width: width, fill: class.descr.color)()[
-          #align(center)[
-            #text(size: 11pt, weight: "bold")[#class.descr.name] \
-            #text(size: 10pt)[Room #class.room]
-          ]
-        ]
-      )
-    }
-  }
-  // Now we need to determine the pattern to know how to split
-  if occupied.at(1).at(1) == occupied.at(1).at(2) {
-    if occupied.at(1).at(1) == occupied.at(2).at(1) {
-      assert(occupied.at(1).at(1) == occupied.at(2).at(2))
-      // +---------+
-      // |         |
-      // |         |
-      // |         |
-      // +---------+
-      class_cell(occupied.at(1).at(1), dy: dy + 0%, dx: 0%)
-    } else if occupied.at(2).at(1) == occupied.at(2).at(2) {
-      // +---------+
-      // |         |
-      // +---------+
-      // |         |
-      // +---------+
-      let half_slot_height = (available_height_per_slot - small_gutter) / 2
-      [
-        #class_cell(occupied.at(1).at(1), dy: dy + 0%, dx: 0%, height: half_slot_height)
-        #class_cell(occupied.at(2).at(1), dy: dy + half_slot_height + small_gutter, dx: 0%, height: (available_height_per_slot - small_gutter) / 2)
-      ]
-    } else {
-      // +---------+
-      // |         |
-      // +----+----+
-      // |    |    |
-      // +----+----+
-      panic[unreachable]
-    }
-  } else {
-    // Only one semester
-    if occupied.at(1).at(1) == occupied.at(2).at(1) {
-      if occupied.at(1).at(2) == occupied.at(2).at(2) {
-        // +----+----+
-        // |    |    |
-        // |    |    |
-        // |    |    |
-        // +----+----+
-        [
-          #class_cell(occupied.at(1).at(1), dy: dy + 0%, dx: 0%, width: available_width_per_sem)
-          #class_cell(occupied.at(1).at(2), dy: dy + 0%, dx: available_width_per_sem + small_gutter, width: available_width_per_sem)
-        ]
+      if class.slot.len() == 1 {
+        let half_slot_height = (available_height_per_slot - small_gutter) / 2
+        class_cell(class,
+          dy: dy + (half_slot_height + small_gutter) * (class.slot.at(0) - 1),
+          dx: 0%,
+          height: half_slot_height,
+        )
+      } else if class.sem.len() == 1 {
+        class_cell(class,
+          dy: dy + 0%,
+          dx: (available_width_per_sem + small_gutter) * (class.sem.at(0) - 1),
+          width: available_width_per_sem,
+        )
       } else {
-        // +----+----+
-        // |    |    |
-        // |    +----+
-        // |    |    |
-        // +----+----+
-        panic[unreachable]
-      }
-    } else {
-      if occupied.at(1).at(2) == occupied.at(2).at(2) {
-        // +----+----+
-        // |    |    |
-        // +----+    |
-        // |    |    |
-        // +----+----+
-        panic[unreachable]
-      } else {
-        // +----+----+
-        // |    |    |
-        // +----+----+
-        // |    |    |
-        // +----+----+
-        panic[unreachable]
+        class_cell(class, dy: dy + 0%, dx: 0%)
       }
     }
   }
