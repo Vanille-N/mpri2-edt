@@ -60,17 +60,18 @@
 #let Time = tt.typedef("Time", tt.struct(tt.int, tt.int))
 #let SemDescr = tt.typedef("SemDescr", tt.array(tt.int))
 #let TimeClass = tt.typedef("TimeClass", tt.struct(descr: Class, room: Room, start: Time, len: Time, sem: SemDescr, ects: tt.int))
-#let custom(descr, room, sem: none, start: none, len: none) = {
+#let custom(descr, room, sem: none, start: none, len: none, ects: none) = {
   tt.is(Class, descr)
   tt.is(Room, room)
   tt.is(Time, start)
   tt.is(Time, len)
   tt.is(SemDescr, sem)
+  tt.is(tt.int, ects)
   tt.ret(TimeClass, (
     descr: descr,
     room: room,
     sem: sem,
-    ects: 6,
+    ects: ects,
     start: start,
     len: len,
   ))
@@ -80,10 +81,12 @@
 #let full(period, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
   start: starting-times.at((period - 1) * 2),
   len: (3,0),
+  ects: 3 * sem.len(),
 )
 #let short(period, slot, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
   start: starting-times.at((period - 1) * 2 + slot - 1),
   len: (1,30),
+  ects: 3,
 )
 
 // Static timetable
