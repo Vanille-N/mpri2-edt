@@ -57,125 +57,102 @@
 #let algo_verif = class(verif)[Algorithmic Verification]
 #let data_analysis = class(algos)[Data Analysis]
 
-#let SlotDescr = tt.typedef("SlotDescr", tt.array(tt.int))
-#let TimeClass = tt.typedef("TimeClass", tt.struct(descr: Class, room: Room, slot: SlotDescr, sem: SlotDescr, ects: tt.int))
-#let full(descr, room) = {
+#let Time = tt.typedef("Time", tt.struct(tt.int, tt.int))
+#let SemDescr = tt.typedef("SemDescr", tt.array(tt.int))
+#let TimeClass = tt.typedef("TimeClass", tt.struct(descr: Class, room: Room, start: Time, len: Time, sem: SemDescr, ects: tt.int))
+#let custom(descr, room, sem: none, start: none, len: none) = {
   tt.is(Class, descr)
   tt.is(Room, room)
-  tt.ret(TimeClass, ( descr: descr, room: room, slot: (1,2),   sem: (1,2),  ects: 6 ))
-}
-#let short_slot(slot, descr, room) = {
-  tt.is(tt.int, slot)
-  tt.is(Class, descr)
-  tt.is(Room, room)
-  tt.ret(TimeClass, ( descr: descr, room: room, slot: (slot,), sem: (1,2),  ects: 3 ))
-}
-#let short_sem(sem, descr, room) = {
-  tt.is(tt.int, sem)
-  tt.is(Class, descr)
-  tt.is(Room, room)
-  tt.ret(TimeClass, ( descr: descr, room: room, slot: (1,2),   sem: (sem,), ects: 3 ))
+  tt.is(Time, start)
+  tt.is(Time, len)
+  tt.is(SemDescr, sem)
+  tt.ret(TimeClass, (
+    descr: descr,
+    room: room,
+    sem: sem,
+    ects: 6,
+    start: start,
+    len: len,
+  ))
 }
 
+#let starting-times = ((8,45), (10,15), (12,45), (14,15), (16,15), (17,45))
+#let full(period, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
+  start: starting-times.at((period - 1) * 2),
+  len: (3,0),
+)
+#let short(period, slot, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
+  start: starting-times.at((period - 1) * 2 + slot - 1),
+  len: (1,30),
+)
+
 // Static timetable
-#let Period = tt.typedef("Period", tt.array(TimeClass))
-#let Periods = tt.typedef("Periods", tt.struct(fst: Period, snd: Period, thr: Period))
-#let Day = tt.typedef("Day", tt.struct(name: tt.str, periods: Periods))
+#let Day = tt.typedef("Day", tt.struct(name: tt.str, classes: tt.array(TimeClass)))
 #let Week = tt.typedef("Week", tt.struct(mon: Day, tue: Day, wed: Day, thu: Day, fri: Day))
 #let week = tt.ret(Week, (
   mon: (
     name: "Monday",
-    periods: (
-      fst: (
-        short_sem(1, proof_asst)[1002],
-        full(automata_mod)[1004],
-      ),
-      snd: (
-        short_slot(1, symbolic_dyn)[1002],
-        full(advanced_verif)[1004],
-      ),
-      thr: (
-        short_sem(1, proof_systems)[1004],
-        short_sem(1, algo_wqo)[1002],
-        short_sem(2, network_mod)[1002],
-        short_sem(2, biochem_prog)[1004],
-      ),
+    classes: (
+      full(1, sem:(1,), proof_asst)[1002],
+      full(1, automata_mod)[1004],
+      short(2, 1, symbolic_dyn)[1002],
+      full(2, advanced_verif)[1004],
+      full(3, sem:(1,), proof_systems)[1004],
+      full(3, sem:(1,), algo_wqo)[1002],
+      full(3, sem:(2,), network_mod)[1002],
+      full(3, sem:(2,), biochem_prog)[1004],
     ),
   ),
   tue: (
     name: "Tuesday",
-    periods: (
-      fst: (
-        short_sem(1, sync_sys)[1004],
-        full(sec_protocols)[1002],
-      ),
-      snd: (
-        short_sem(1, lang_mod)[1004],
-        short_sem(1, graph_mining)[1002],
-        short_sem(2, param_compl)[1002],
-        short_sem(2, quantum_crypto)[1004],
-      ),
-      thr: (
-        full(linear_logic)[1002],
-        short_sem(1, poly_sys)[1004],
-      ),
+    classes: (
+      full(1, sem:(1,), sync_sys)[1004],
+      full(1, sec_protocols)[1002],
+      full(2, sem:(1,), lang_mod)[1004],
+      full(2, sem:(1,), graph_mining)[1002],
+      full(2, sem:(2,), param_compl)[1002],
+      full(2, sem:(2,), quantum_crypto)[1004],
+      full(3, linear_logic)[1002],
+      full(3, sem:(1,), poly_sys)[1004],
     ),
   ),
   wed: (
     name: "Wednesday",
-    periods: (
-      fst: (
-        short_slot(1, cryptanalysis)[1004],
-        short_slot(2, error_corr)[1004],
-        short_slot(2, da_networks)[1002],
-      ),
-      snd: (
-        full(fp_and_types)[1002],
-        full(combinatorics)[1004],
-      ),
-      thr: (
-        full(analysis_algo)[1002],
-      ),
+    classes: (
+      short(1, 1, cryptanalysis)[1004],
+      short(1, 2, error_corr)[1004],
+      short(1, 2, da_networks)[1002],
+      full(2, fp_and_types)[1002],
+      full(2, combinatorics)[1004],
+      full(2, analysis_algo)[1002],
     ),
   ),
   thu: (
     name: "Thursday",
-    periods: (
-      fst: (
-        full(abstract_interp)[1004],
-        short_sem(2, search_heuristics)[1002],
-        short_sem(1, geometric_graphs)[1002],
-      ),
-      snd: (
-        short_sem(1, topology)[1002],
-        short_sem(1, quantum_info)[1004],
-        short_sem(2, proba_prog)[1002],
-      ),
-      thr: (
-        short_sem(1, rand_compl)[1002],
-        full(comp_algebra)[1004],
-        short_sem(2, graph_theory)[1002],
-      ),
+    classes: (
+      full(1, abstract_interp)[1004],
+      full(1, sem:(2,), search_heuristics)[1002],
+      full(1, sem:(1,), geometric_graphs)[1002],
+      full(2, sem:(1,), topology)[1002],
+      full(2, sem:(1,), quantum_info)[1004],
+      full(2, sem:(2,), proba_prog)[1002],
+      full(3, sem:(1,), rand_compl)[1002],
+      full(3, comp_algebra)[1004],
+      full(3, sem:(2,), graph_theory)[1002],
     ),
   ),
   fri: (
     name: "Friday",
-    periods: (
-      fst: (
-        short_sem(1, arith_crypto)[1004],
-        short_sem(2, concurrency)[1002],
-        short_sem(1, uncertainty)[1002],
-        short_sem(2, proof_of_prog)[1004],
-      ),
-      snd: (
-        short_sem(1, da_shared)[1002],
-        short_sem(1, game_theory)[1004],
-      ),
-      thr: (
-        full(categories)[1004],
-        short_sem(2, algo_verif)[1002],
-        short_sem(1, data_analysis)[1002],
-      ),
+    classes: (
+      full(1, sem:(1,), arith_crypto)[1004],
+      full(1, sem:(2,), concurrency)[1002],
+      full(1, sem:(1,), uncertainty)[1002],
+      full(1, sem:(2,), proof_of_prog)[1004],
+      full(2, sem:(1,), da_shared)[1002],
+      full(2, sem:(1,), game_theory)[1004],
+      full(3, categories)[1004],
+      full(3, sem:(2,), algo_verif)[1002],
+      full(3, sem:(1,), data_analysis)[1002],
     ),
   ),
 ))

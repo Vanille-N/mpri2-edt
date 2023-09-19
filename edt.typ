@@ -13,15 +13,36 @@
   height: 100%,
   radius: 6pt
 )
-#let available_height_per_slot = (95% - small_gutter * 2) / 3
-#let available_width_per_sem = (100% - small_gutter) / 2
 
-#let slot(chosen, classes, dy) = {
+#let as-minutes(t) = {
+  let (h, m) = t
+  h * 60 + m
+}
+
+#let time-proportional(t, zero: none, one: none) = {
+  tt.is(mpri.Time, t)
+  tt.is(mpri.Time, zero)
+  tt.is(mpri.Time, one)
+  let zero = as-minutes(zero)
+  let one = as-minutes(one)
+  100% * as-minutes(t) / (one - zero)
+}
+
+#let time-absolute(t, zero: none, one: none) = {
+  tt.is(mpri.Time, t)
+  tt.is(mpri.Time, zero)
+  tt.is(mpri.Time, one)
+  let zero = as-minutes(zero)
+  let one = as-minutes(one)
+  100% * (as-minutes(t) - zero) / (one - zero)
+}
+
+#let show-classes(chosen, classes) = {
   tt.is(tt.array(mpri.Class), chosen)
   tt.is(tt.array(mpri.TimeClass), classes)
   let occupied = (none, (none, 0, 0), (none, 0, 0))
 
-  let class_cell(class, dy: 0pt, dx: 0pt, height: available_height_per_slot, width: 100%) = {
+  let class_cell(class, dy: 0pt, dx: 0pt, height: none, width: none) = {
     place(
       top + left,
       dx: dx,
@@ -37,22 +58,15 @@
 
   for (idx, class) in classes.enumerate() {
     if class.descr in chosen {
-      if class.slot.len() == 1 {
-        let half_slot_height = (available_height_per_slot - small_gutter) / 2
-        class_cell(class,
-          dy: dy + (half_slot_height + small_gutter) * (class.slot.at(0) - 1),
-          dx: 0%,
-          height: half_slot_height,
-        )
-      } else if class.sem.len() == 1 {
-        class_cell(class,
-          dy: dy + 0%,
-          dx: (available_width_per_sem + small_gutter) * (class.sem.at(0) - 1),
-          width: available_width_per_sem,
-        )
+      let (width, dx) = if class.sem.len() == 1 {
+        let available_width_per_sem = (100% - small_gutter) / 2
+        (available_width_per_sem, (available_width_per_sem + small_gutter) * (class.sem.at(0) - 1))
       } else {
-        class_cell(class, dy: dy + 0%, dx: 0%)
+        (100%, 0%)
       }
+      let dy = time-absolute(class.start, zero: (8,45), one: (19,15))
+      let height = time-proportional(class.len, zero: (8,45), one: (19,15))
+      class_cell(class, dy: dy, dx: dx, height: height, width: width)
     }
   }
 }
@@ -60,12 +74,12 @@
 #let day(chosen, d) = {
   tt.is(tt.array(mpri.Class), chosen)
   tt.is(mpri.Day, d)
-  [
-    #align(center, text(size: 18pt, weight: "bold")[#d.name])
-    #slot(chosen, d.periods.fst, 5%) // First period
-    #slot(chosen, d.periods.snd, 5% + available_height_per_slot + small_gutter) // Second period
-    #slot(chosen, d.periods.thr, 5% + (available_height_per_slot + small_gutter) * 2) // Third period
-  ]
+  grid(
+    columns: (100%,),
+    rows: (5%, 95%),
+    align(center, text(size: 18pt, weight: "bold")[#d.name]),
+    show-classes(chosen, d.classes),
+  )
 }
 
 #let conf(
@@ -81,11 +95,9 @@
 
   let ects = 0
   for day in ( week.mon, week.tue, week.wed, week.thu, week.fri ) {
-    for slot in ( day.periods.fst, day.periods.snd, day.periods.thr ) {
-      for class in slot {
-        if class.descr in chosen {
-          ects += class.ects
-        }
+    for class in day.classes {
+      if class.descr in chosen {
+        ects += class.ects
       }
     }
   }
