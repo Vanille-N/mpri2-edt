@@ -1,6 +1,7 @@
 #import "typtyp.typ"
 #let tt = typtyp
 #import "mpri.typ"
+#import "time.typ"
 
 #let blank_color = rgb("f8f8f8")
 
@@ -14,28 +15,7 @@
   radius: 6pt
 )
 
-#let as-minutes(t) = {
-  let (h, m) = t
-  h * 60 + m
-}
-
-#let time-proportional(t, zero: none, one: none) = {
-  tt.is(mpri.Time, t)
-  tt.is(mpri.Time, zero)
-  tt.is(mpri.Time, one)
-  let zero = as-minutes(zero)
-  let one = as-minutes(one)
-  100% * as-minutes(t) / (one - zero)
-}
-
-#let time-absolute(t, zero: none, one: none) = {
-  tt.is(mpri.Time, t)
-  tt.is(mpri.Time, zero)
-  tt.is(mpri.Time, one)
-  let zero = as-minutes(zero)
-  let one = as-minutes(one)
-  100% * (as-minutes(t) - zero) / (one - zero)
-}
+#let day-bounds = time.extend(time.extend(time.empty, time.from-hm(8,45)), time.from-hm(19,15))
 
 #let show-classes(chosen, classes) = {
   tt.is(tt.array(mpri.Class), chosen)
@@ -64,8 +44,8 @@
       } else {
         (100%, 0%)
       }
-      let dy = time-absolute(class.start, zero: (8,45), one: (19,15))
-      let height = time-proportional(class.len, zero: (8,45), one: (19,15))
+      let dy = time.absolute(day-bounds, class.start)
+      let height = time.proportional(day-bounds, class.len)
       class_cell(class, dy: dy, dx: dx, height: height, width: width)
     }
   }

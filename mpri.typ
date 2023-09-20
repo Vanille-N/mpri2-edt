@@ -1,5 +1,6 @@
 #import "typtyp.typ"
 #let tt = typtyp
+#import "time.typ"
 
 #let verif = rgb("b8bb26").lighten(70%)
 #let prog = rgb("fe8019").lighten(60%)
@@ -57,14 +58,20 @@
 #let algo_verif = class(verif)[Algorithmic Verification]
 #let data_analysis = class(algos)[Data Analysis]
 
-#let Time = tt.typedef("Time", tt.struct(tt.int, tt.int))
 #let SemDescr = tt.typedef("SemDescr", tt.array(tt.int))
-#let TimeClass = tt.typedef("TimeClass", tt.struct(descr: Class, room: Room, start: Time, len: Time, sem: SemDescr, ects: tt.int))
+#let TimeClass = tt.typedef("TimeClass", tt.struct(
+  descr: Class,
+  room: Room,
+  start: time.Time,
+  len: time.Time,
+  sem: SemDescr,
+  ects: tt.int,
+))
 #let custom(descr, room, sem: none, start: none, len: none, ects: none) = {
   tt.is(Class, descr)
   tt.is(Room, room)
-  tt.is(Time, start)
-  tt.is(Time, len)
+  tt.is(time.Time, start)
+  tt.is(time.Time, len)
   tt.is(SemDescr, sem)
   tt.is(tt.int, ects)
   tt.ret(TimeClass, (
@@ -77,15 +84,15 @@
   ))
 }
 
-#let starting-times = ((8,45), (10,15), (12,45), (14,15), (16,15), (17,45))
+#let starting-times = ((8,45), (10,15), (12,45), (14,15), (16,15), (17,45)).map(t => time.from-hm(..t))
 #let full(period, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
   start: starting-times.at((period - 1) * 2),
-  len: (3,0),
+  len: time.from-hm(3, 0),
   ects: 3 * sem.len(),
 )
 #let short(period, slot, descr, room, sem: (1,2)) = custom(descr, room, sem: sem,
   start: starting-times.at((period - 1) * 2 + slot - 1),
-  len: (1,30),
+  len: time.from-hm(1, 30),
   ects: 3,
 )
 
