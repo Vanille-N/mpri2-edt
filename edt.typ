@@ -2,6 +2,7 @@
 #let tt = typtyp
 #import "mpri.typ"
 #import "time.typ"
+#import "classes.typ"
 
 #let blank_color = rgb("f8f8f8")
 
@@ -17,9 +18,9 @@
 
 #let day-bounds = time.extend(time.extend(time.empty, time.from-hm(8,45)), time.from-hm(19,15))
 
-#let show-classes(chosen, classes) = {
-  tt.is(tt.array(mpri.Class), chosen)
-  tt.is(tt.array(mpri.TimeClass), classes)
+#let show-classes(chosen, all) = {
+  tt.is(tt.array(classes.Class), chosen)
+  tt.is(tt.array(classes.TimeClass), all)
   let occupied = (none, (none, 0, 0), (none, 0, 0))
 
   let class_cell(class, dy: 0pt, dx: 0pt, height: none, width: none) = {
@@ -29,16 +30,16 @@
       dy: dy,
       cell.with(height: height, width: width, fill: class.descr.color)()[
         #align(center)[
-          #text(size: 8pt, weight: "bold")[#class.descr.uid :]
           #text(size: 11pt, weight: "bold")[#class.descr.name] \
-          #text(size: 8pt)[(#class.descr.teacher)] \
-          #text(size: 11pt)[Room #class.room] \
+          #text(size: 11pt)[Room #class.room]
+          #text(size: 8pt)[(#class.descr.teacher)]
+          #text(size: 8pt, weight: "bold")[[#class.descr.uid]]
         ]
       ]
     )
   }
 
-  for (idx, class) in classes.enumerate() {
+  for (idx, class) in all.enumerate() {
     if class.descr in chosen {
       let (width, dx) = if class.sem.len() == 1 {
         let available_width_per_sem = (100% - small_gutter) / 2
@@ -53,14 +54,15 @@
   }
 }
 
-#let day(chosen, d) = {
-  tt.is(tt.array(mpri.Class), chosen)
-  tt.is(mpri.Day, d)
+#let day(name, chosen, d) = {
+  tt.is(tt.str, name)
+  tt.is(tt.array(classes.Class), chosen)
+  tt.is(classes.Day, d)
   grid(
     columns: (100%,),
     rows: (5%, 95%),
-    align(center, text(size: 18pt, weight: "bold")[#d.name]),
-    show-classes(chosen, d.classes),
+    align(center, text(size: 18pt, weight: "bold")[#name]),
+    show-classes(chosen, d),
   )
 }
 
@@ -68,8 +70,8 @@
   week,
   chosen,
 ) = {
-  tt.is(mpri.Week, week)
-  tt.is(tt.array(mpri.Class), chosen)
+  tt.is(classes.Week, week)
+  tt.is(tt.array(classes.Class), chosen)
   set page(
     paper: "presentation-16-9",
     margin: 1cm,
@@ -77,7 +79,7 @@
 
   let ects = 0
   for day in ( week.mon, week.tue, week.wed, week.thu, week.fri ) {
-    for class in day.classes {
+    for class in day {
       if class.descr in chosen {
         ects += class.ects
       }
@@ -89,11 +91,11 @@
     gutter: (large_gutter,),
     row-gutter: (large_gutter,),
     rows: (94%,),
-    day(chosen, week.mon), // Monday
-    day(chosen, week.tue), // Tuesday
-    day(chosen, week.wed), // Wednesday
-    day(chosen, week.thu), // Thursday
-    day(chosen, week.fri), // Friday
+    day("Monday", chosen, week.mon),
+    day("Tuesday", chosen, week.tue),
+    day("Wednesday", chosen, week.wed),
+    day("Thursday", chosen, week.thu),
+    day("Friday", chosen, week.fri),
   )
   text(size: 12pt)[Totalling * #ects * ECTS]
 }

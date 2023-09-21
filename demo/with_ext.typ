@@ -45,6 +45,7 @@
 //mpri.analysis_algo,
 
   /* === Thursday === */
+  ext.intro_to_bullshit,
   /*-- 8h45 --*/
 //mpri.abstract_interp,
 //mpri.search_heuristics,
