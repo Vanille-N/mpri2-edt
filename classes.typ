@@ -3,14 +3,20 @@
 #import "time.typ"
 
 #let Room = tt.typedef("Room", tt.content)
-#let Class = tt.typedef("Class", tt.struct(name: tt.content, color: tt.color, uid: tt.content, teacher: tt.content))
+#let Class = tt.typedef("Class", tt.struct(
+  name: tt.content,
+  color: tt.color,
+  uid: tt.option(tt.content),
+  teacher: tt.content,
+  fmt: tt.any,
+))
 
-#let new(col, name, uid, teacher) = {
+#let new(col, fmt, name, uid, teacher) = {
   tt.is(tt.color, col)
   tt.is(tt.content, name)
-  tt.is(tt.content, uid)
+  tt.is(tt.option(tt.content), uid)
   tt.is(tt.content, teacher)
-  tt.ret(Class, ( name: name, color: col, uid: uid, teacher: teacher ))
+  tt.ret(Class, ( name: name, color: col, uid: uid, teacher: teacher, fmt: fmt ))
 }
 
 #let SemDescr = tt.typedef("SemDescr", tt.array(tt.int))

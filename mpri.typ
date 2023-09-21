@@ -12,47 +12,57 @@
 #let algos = rgb("d3869b").lighten(50%)
 #let data = rgb("fb4934").lighten(50%)
 
+#let fmt(name, uid, teacher, room) = [
+  #{ // UID is mandatory for MPRI classes
+    assert(uid != none)
+  }
+  #text(size: 11pt, weight: "bold")[#name] \
+  #text(size: 11pt)[Room #room]
+  #text(size: 8pt)[(#teacher)]
+  #text(size: 8pt, weight: "bold")[[#uid]]
+]
+
 // List of classes
-#let proof_asst = classes.new(verif)[Proof Assistants][2.7.2][Winterhalter]
-#let automata_mod = classes.new(logic)[Automata Modelling][2.16][Picantin]
-#let symbolic_dyn = classes.new(logic)[Symbolic Dynamics][2.20.2][Berthé]
-#let advanced_verif = classes.new(verif)[Technics of Verification][2.8][Bouyer]
-#let proof_systems = classes.new(verif)[Foundations of Proof Systems][2.7.1][Dowek]
-#let algo_wqo = classes.new(verif)[Well Quasi-Order Theory][2.9.1][Finkel]
-#let network_mod = classes.new(logic)[Network Models][2.17.1][Mairesse]
-#let biochem_prog = classes.new(prog)[Biochemical Programming][2.19][Fages]
-#let sync_sys = classes.new(prog)[Synchronous Systems][2.23][Pouzet]
-#let sec_protocols = classes.new(verif)[Security Protocols][2.30][Blanchet]
-#let lang_mod = classes.new(data)[Natural Language Modelling][2.27.1][Schmitz]
-#let graph_mining = classes.new(data)[Graph Mining][2.29.2][Sozio]
-#let param_compl = classes.new(algos)[Parameterized Complexity][2.11.1][Mitsou]
-#let quantum_crypto = classes.new(algos)[Quantum Cryptography][2.34.2][Chailloux]
-#let linear_logic = classes.new(logic)[Linear Logic][2.1][Kesner]
-#let poly_sys = classes.new(algos)[Polynomial Systems][2.13.1][Faugère]
-#let cryptanalysis = classes.new(algos)[Cryptanalysis][2.12.1][Minaud]
-#let error_corr = classes.new(algos)[Error Correcting Codes][2.13.1][Faugère]
-#let da_networks = classes.new(algos)[DA on Networks][2.18.1][Fraigniaud]
-#let fp_and_types = classes.new(prog)[FP and Type Systems][2.4][Pottier]
-#let combinatorics = classes.new(algos)[Combinatorics][2.10][Schaeffer]
-#let analysis_algo = classes.new(algos)[Analysis of Algorithms][2.15][Ravelomanana]
-#let abstract_interp = classes.new(verif)[Abstract Interpretation][2.6][Miné]
-#let search_heuristics = classes.new(data)[Search Heuristics][2.24.2][Doerr]
-#let geometric_graphs = classes.new(algos)[Geometric Graphs][2.38.1][Laplante]
-#let topology = classes.new(data)[Topology][2.14.1][Glisse]
-#let quantum_info = classes.new(algos)[Quantum Information][2.34.1][Laplante]
-#let proba_prog = classes.new(logic)[Probabilistic PL][2.40][Tasson]
-#let rand_compl = classes.new(algos)[Randomness in Complexity][2.11.2][Magniez]
-#let comp_algebra = classes.new(algos)[Computer Algebra][2.22][Chyzak]
-#let graph_theory = classes.new(data)[Graph Theory][2.29.1][Naserasr]
-#let arith_crypto = classes.new(algos)[Arithmetic for Cryptology][2.12.2][Smith]
-#let concurrency = classes.new(logic)[Concurrency][2.3.1][Haucourt]
-#let uncertainty = classes.new(data)[Alg. and Uncertainty][2.24.1][Angelopoulos]
-#let proof_of_prog = classes.new(verif)[Proof of Programs][2.36.1][Marché]
-#let da_shared = classes.new(algos)[DA on Shared Memory][2.18.2][Delporte]
-#let game_theory = classes.new(logic)[Game Theory][2.20.1][Zielonka]
-#let categories = classes.new(logic)[Domains, Categories, Games][2.2][Melliès]
-#let algo_verif = classes.new(verif)[Algorithmic Verification][2.9.2][Bouajjani]
-#let data_analysis = classes.new(data)[Data Analysis][2.39][Tierny]
+#let proof_asst        = classes.new(verif, fmt, [Proof Assistants],             [2.7.2],  [Winterhalter])
+#let automata_mod      = classes.new(logic, fmt, [Automata Modelling],           [2.16],   [Picantin])
+#let symbolic_dyn      = classes.new(logic, fmt, [Symbolic Dynamics],            [2.20.2], [Berthé])
+#let advanced_verif    = classes.new(verif, fmt, [Technics of Verification],     [2.8],    [Bouyer])
+#let proof_systems     = classes.new(verif, fmt, [Foundations of Proof Systems], [2.7.1],  [Dowek])
+#let algo_wqo          = classes.new(verif, fmt, [Well Quasi-Order Theory],      [2.9.1],  [Finkel])
+#let network_mod       = classes.new(logic, fmt, [Network Models],               [2.17.1], [Mairesse])
+#let biochem_prog      = classes.new(prog,  fmt, [Biochemical Programming],      [2.19],   [Fages])
+#let sync_sys          = classes.new(prog,  fmt, [Synchronous Systems],          [2.23],   [Pouzet])
+#let sec_protocols     = classes.new(verif, fmt, [Security Protocols],           [2.30],   [Blanchet])
+#let lang_mod          = classes.new(data,  fmt, [Natural Language Modelling],   [2.27.1], [Schmitz])
+#let graph_mining      = classes.new(data,  fmt, [Graph Mining],                 [2.29.2], [Sozio])
+#let param_compl       = classes.new(algos, fmt, [Parameterized Complexity],     [2.11.1], [Mitsou])
+#let quantum_crypto    = classes.new(algos, fmt, [Quantum Cryptography],         [2.34.2], [Chailloux])
+#let linear_logic      = classes.new(logic, fmt, [Linear Logic],                 [2.1],    [Kesner])
+#let poly_sys          = classes.new(algos, fmt, [Polynomial Systems],           [2.13.1], [Faugère])
+#let cryptanalysis     = classes.new(algos, fmt, [Cryptanalysis],                [2.12.1], [Minaud])
+#let error_corr        = classes.new(algos, fmt, [Error Correcting Codes],       [2.13.1], [Faugère])
+#let da_networks       = classes.new(algos, fmt, [DA on Networks],               [2.18.1], [Fraigniaud])
+#let fp_and_types      = classes.new(prog,  fmt, [FP and Type Systems],          [2.4],    [Pottier])
+#let combinatorics     = classes.new(algos, fmt, [Combinatorics],                [2.10],   [Schaeffer])
+#let analysis_algo     = classes.new(algos, fmt, [Analysis of Algorithms],       [2.15],   [Ravelomanana])
+#let abstract_interp   = classes.new(verif, fmt, [Abstract Interpretation],      [2.6],    [Miné])
+#let search_heuristics = classes.new(data,  fmt, [Search Heuristics],            [2.24.2], [Doerr])
+#let geometric_graphs  = classes.new(algos, fmt, [Geometric Graphs],             [2.38.1], [Laplante])
+#let topology          = classes.new(data,  fmt, [Topology],                     [2.14.1], [Glisse])
+#let quantum_info      = classes.new(algos, fmt, [Quantum Information],          [2.34.1], [Laplante])
+#let proba_prog        = classes.new(logic, fmt, [Probabilistic PL],             [2.40],   [Tasson])
+#let rand_compl        = classes.new(algos, fmt, [Randomness in Complexity],     [2.11.2], [Magniez])
+#let comp_algebra      = classes.new(algos, fmt, [Computer Algebra],             [2.22],   [Chyzak])
+#let graph_theory      = classes.new(data,  fmt, [Graph Theory],                 [2.29.1], [Naserasr])
+#let arith_crypto      = classes.new(algos, fmt, [Arithmetic for Cryptology],    [2.12.2], [Smith])
+#let concurrency       = classes.new(logic, fmt, [Concurrency],                  [2.3.1],  [Haucourt])
+#let uncertainty       = classes.new(data,  fmt, [Alg. and Uncertainty],         [2.24.1], [Angelopoulos])
+#let proof_of_prog     = classes.new(verif, fmt, [Proof of Programs],            [2.36.1], [Marché])
+#let da_shared         = classes.new(algos, fmt, [DA on Shared Memory],          [2.18.2], [Delporte])
+#let game_theory       = classes.new(logic, fmt, [Game Theory],                  [2.20.1], [Zielonka])
+#let categories        = classes.new(logic, fmt, [Domains, Categories, Games],   [2.2],    [Melliès])
+#let algo_verif        = classes.new(verif, fmt, [Algorithmic Verification],     [2.9.2],  [Bouajjani])
+#let data_analysis     = classes.new(data,  fmt, [Data Analysis],                [2.39],   [Tierny])
 
 #let starting-times = ((8,45), (10,15), (12,45), (14,15), (16,15), (17,45)).map(t => time.from-hm(..t))
 

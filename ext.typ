@@ -28,19 +28,34 @@
 // Otherwise you can also define a new color
 #let other = rgb("cf12de").lighten(50%)
 
+// Below is a class formatter.
+// It takes up to 4 parameters:
+// - `name`: the full name of the class
+// - `room`: the location of the class
+// - `teacher`: the person teaching that class
+// - `uid` (optional): some identifier of the class
+// Below is just an example formatter, feel free to define your own with the same signature.
+#let fmt(name, uid, teacher, room) = [
+  #text(size: 11pt, weight: "bold")[#name] \
+  #text(size: 11pt)[#room]
+  #text(size: 8pt)[(#teacher)]
+  #if uid != none [ #text(size: 8pt, weight: "bold")[[#uid]] ]
+]
+
 // The next step is to declare the class in the form
-// #let my_new_class = classes.new(color)[Full Name][Class ID][Teacher]
+// #let my_new_class = classes.new(color, formatter, [Full Name], [Class ID], [Teacher])
+// ID may be `none`.
 //
-// For example, below is the declaration of the class "2.42 Introduction to Bullshit",
+// For example, below is the declaration of the class "Introduction to Bullshit",
 // from the category "other" (which defines its color), given by professor Whatever.
 //
 // IMPORTANT: if you use external classes you will need to modify `my.typ` to
-// - add them to your `chosen` list by appending e.g. `ext.intro_to_bullshit`
 // - import them using `#import "ext.typ"` at the top
 // - also add `#import "classes.typ"` for the merge function below
+// - add them to your `chosen` list by appending e.g. `ext.intro_to_bullshit`
 // - replace `mpri.week` with `classes.merge(mpri.week, ext.week)` to register the classes
 // see `demo/ext.typ` for details
-#let intro_to_bullshit = classes.new(other)[Introduction to Bullshit][2.42][Whatever]
+#let intro_to_bullshit = classes.new(other, fmt, [Introduction to Bullshit], none, [Whatever])
 
 // Then create a new slot in the correct day.
 // This is done through the function
@@ -54,7 +69,7 @@
 // - `credits` (integer) is however may ECTS credits this class will grant
 #let week = tt.ret(classes.Week, (
   mon: (
-    classes.slot(intro_to_bullshit, [666], start: time.from-hm(9,42), len: time.from-hm(3,14), sem:(2,), ects: 1000),
+    classes.slot(intro_to_bullshit, [in Hell], start: time.from-hm(9,42), len: time.from-hm(3,14), sem:(2,), ects: 1000),
   ),
   tue: (
   ),

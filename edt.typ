@@ -28,12 +28,7 @@
       dx: dx,
       dy: dy,
       cell.with(height: height, width: width, fill: class.descr.color)()[
-        #align(center)[
-          #text(size: 11pt, weight: "bold")[#class.descr.name] \
-          #text(size: 11pt)[Room #class.room]
-          #text(size: 8pt)[(#class.descr.teacher)]
-          #text(size: 8pt, weight: "bold")[[#class.descr.uid]]
-        ]
+        #align(center, (class.descr.fmt)(class.descr.name, class.descr.uid, class.descr.teacher, class.room))
       ]
     )
   }

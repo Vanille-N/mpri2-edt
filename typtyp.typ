@@ -81,6 +81,7 @@
 #let color = typedef("color", has_type_of(rgb(0, 0, 0)))
 #let str = typedef("str", has_type_of(""))
 #let content = typedef("content", has_type_of([]))
+#let null = typedef("none", has_type_of(none))
 
 #verify(any, 1)
 #verify(any, true)
@@ -88,6 +89,7 @@
 #verify(color, rgb(1, 1, 1))
 #verify(bool, false)
 #falsify(bool, "")
+#verify(null, none)
 
 // Composition mechanisms
 
@@ -108,6 +110,8 @@
 #verify(union(bool, int), 1)
 #verify(union(bool, int), true)
 #falsify(union(str, int), true)
+
+#let option(t) = typedef(t.label + "?", union(t, null))
 
 // Products
 #let array(t) = typedef("array { ... }", arr => {
