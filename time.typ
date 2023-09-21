@@ -41,6 +41,12 @@
   tt.ret(Time, (minutes: t.minutes + dt.minutes))
 }
 
+#let inbounds(bounds, t) = {
+  tt.is(Bounds, bounds)
+  tt.is(Time, t)
+  compare(bounds.start, t) <= 0 and compare(bounds.end, t) >= 0
+}
+
 #let proportional(bounds, t) = {
   tt.is(Bounds, bounds)
   tt.is(Time, t)

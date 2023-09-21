@@ -5,6 +5,8 @@
 #import "classes.typ"
 
 #let blank_color = rgb("f8f8f8")
+#let table_ratio = 94%
+#let title_ratio = 5%
 
 #let small_gutter = 1.5pt
 #let large_gutter = 3pt
@@ -16,6 +18,31 @@
   radius: 6pt
 )
 
+#let show-hour-lines(bounds, notable) = {
+  for (label, hour) in notable {
+    let vpos = time.absolute(bounds, hour)
+    // This is a hack: we need to rescale to the size of the table without titles
+    let real_vpos = (vpos * (100% - title_ratio) + title_ratio) * table_ratio
+    place(
+      top + left,
+      dx: 0%,
+      dy: real_vpos,
+      line(
+        length: 100%,
+        stroke: (
+          paint: gray.lighten(70%),
+          thickness: 0.1pt,
+        ),
+      ),
+    )
+    place(
+      top + left,
+      dx: 0%,
+      dy: real_vpos,
+      text(fill: gray.darken(40%), label),
+    )
+  }
+}
 
 #let show-classes(chosen, all, day-bounds) = {
   tt.is(tt.array(classes.Class), chosen)
@@ -55,7 +82,7 @@
   tt.is(time.Bounds, day-bounds)
   grid(
     columns: (100%,),
-    rows: (5%, 95%),
+    rows: (title_ratio, 100% - title_ratio),
     align(center, text(size: 18pt, weight: "bold")[#name]),
     show-classes(chosen, d, day-bounds),
   )
@@ -69,7 +96,7 @@
   tt.is(tt.array(classes.Class), chosen)
   set page(
     paper: "presentation-16-9",
-    margin: 1cm,
+    margin: 0.5cm,
   )
 
   let day-bounds = time.empty
@@ -84,16 +111,24 @@
     }
   }
 
+  let notable-hours = range(24)
+    .map(h => (label: [#{h}h00], hour: time.from-hm(h, 0)))
+    .filter(h => time.inbounds(day-bounds, h.hour))
+
+  show-hour-lines(day-bounds, notable-hours)
+
   grid(
-    columns: (1fr, 1fr, 1fr, 1fr, 1fr),
+    columns: (4%, 1fr, 1fr, 1fr, 1fr, 1fr, 0.1%),
     gutter: (large_gutter,),
     row-gutter: (large_gutter,),
-    rows: (94%,),
+    rows: (table_ratio,),
+    [],
     day("Monday", chosen, week.mon, day-bounds),
     day("Tuesday", chosen, week.tue, day-bounds),
     day("Wednesday", chosen, week.wed, day-bounds),
     day("Thursday", chosen, week.thu, day-bounds),
     day("Friday", chosen, week.fri, day-bounds),
+    [],
   )
   text(size: 12pt)[Totalling * #ects * ECTS]
 }
