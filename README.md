@@ -23,8 +23,10 @@ $ typst compile my.typ
 ## External classes
 
 You might be following external classes, in which case you may add the description of
-these classes to `mpri.typ`, following the example of existing classes.
-This should be made easier eventually.
+these classes to `ext.typ`, following the example of existing classes and the instructions.
+
+Please commit these additions and make a pull request so that other people who take
+the same external classes as you can benefit from it.
 
 ## Understanding error messages
 
