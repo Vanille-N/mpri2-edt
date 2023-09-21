@@ -16,12 +16,11 @@
   radius: 6pt
 )
 
-#let day-bounds = time.extend(time.extend(time.empty, time.from-hm(8,45)), time.from-hm(19,15))
 
-#let show-classes(chosen, all) = {
+#let show-classes(chosen, all, day-bounds) = {
   tt.is(tt.array(classes.Class), chosen)
   tt.is(tt.array(classes.TimeClass), all)
-  let occupied = (none, (none, 0, 0), (none, 0, 0))
+  tt.is(time.Bounds, day-bounds)
 
   let class_cell(class, dy: 0pt, dx: 0pt, height: none, width: none) = {
     place(
@@ -54,15 +53,16 @@
   }
 }
 
-#let day(name, chosen, d) = {
+#let day(name, chosen, d, day-bounds) = {
   tt.is(tt.str, name)
   tt.is(tt.array(classes.Class), chosen)
   tt.is(classes.Day, d)
+  tt.is(time.Bounds, day-bounds)
   grid(
     columns: (100%,),
     rows: (5%, 95%),
     align(center, text(size: 18pt, weight: "bold")[#name]),
-    show-classes(chosen, d),
+    show-classes(chosen, d, day-bounds),
   )
 }
 
@@ -77,11 +77,14 @@
     margin: 1cm,
   )
 
+  let day-bounds = time.empty
   let ects = 0
   for day in ( week.mon, week.tue, week.wed, week.thu, week.fri ) {
     for class in day {
       if class.descr in chosen {
         ects += class.ects
+        day-bounds = time.extend(day-bounds, class.start)
+        day-bounds = time.extend(day-bounds, time.offset(class.start, class.len))
       }
     }
   }
@@ -91,11 +94,11 @@
     gutter: (large_gutter,),
     row-gutter: (large_gutter,),
     rows: (94%,),
-    day("Monday", chosen, week.mon),
-    day("Tuesday", chosen, week.tue),
-    day("Wednesday", chosen, week.wed),
-    day("Thursday", chosen, week.thu),
-    day("Friday", chosen, week.fri),
+    day("Monday", chosen, week.mon, day-bounds),
+    day("Tuesday", chosen, week.tue, day-bounds),
+    day("Wednesday", chosen, week.wed, day-bounds),
+    day("Thursday", chosen, week.thu, day-bounds),
+    day("Friday", chosen, week.fri, day-bounds),
   )
   text(size: 12pt)[Totalling * #ects * ECTS]
 }
