@@ -52,7 +52,7 @@
 #let game_theory = classes.new(logic)[Game Theory][2.20.1][Zielonka]
 #let categories = classes.new(logic)[Domains, Categories, Games][2.2][Melliès]
 #let algo_verif = classes.new(verif)[Algorithmic Verification][2.9.2][Bouajjani]
-#let data_analysis = classes.new(algos)[Data Analysis][2.39][Tierny]
+#let data_analysis = classes.new(data)[Data Analysis][2.39][Tierny]
 
 #let starting-times = ((8,45), (10,15), (12,45), (14,15), (16,15), (17,45)).map(t => time.from-hm(..t))
 

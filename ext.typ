@@ -37,6 +37,7 @@
 // IMPORTANT: if you use external classes you will need to modify `my.typ` to
 // - add them to your `chosen` list by appending e.g. `ext.intro_to_bullshit`
 // - import them using `#import "ext.typ"` at the top
+// - also add `#import "classes.typ"` for the merge function below
 // - replace `mpri.week` with `classes.merge(mpri.week, ext.week)` to register the classes
 // see `demo/ext.typ` for details
 #let intro_to_bullshit = classes.new(other)[Introduction to Bullshit][2.42][Whatever]

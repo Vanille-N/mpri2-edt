@@ -1,7 +1,9 @@
-#import "../mpri.typ"
 #import "../edt.typ"
 #import "../typtyp.typ"
 #let tt = typtyp
+#import "../classes.typ"
+#import "../mpri.typ"
+#import "../ext.typ"
 
 // Edit this: uncomment exactly the classes you take
 #let chosen = tt.ret(tt.array(mpri.Class), (
@@ -72,5 +74,5 @@
 ))
 
 #show: doc => [
-  #edt.conf(mpri.week, chosen)
+  #edt.conf(classes.merge(mpri.week, ext.week), chosen)
 ]

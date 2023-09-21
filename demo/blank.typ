@@ -1,9 +1,11 @@
-#import "../classes.typ"
-#import "../edt.typ"
-#import "../typtyp.typ"
+// This file should be copied to `my.typ` in the root directory
+// of the project for these imports to work properly.
+#import "edt.typ"
+#import "typtyp.typ"
 #let tt = typtyp
-#import "../mpri.typ"
-#import "../ext.typ"
+#import "classes.typ"
+#import "mpri.typ"
+#import "ext.typ"
 
 // Edit this: uncomment exactly the classes you take
 #let chosen = tt.ret(tt.array(classes.Class), (
