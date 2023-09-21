@@ -1,13 +1,34 @@
 #import "typtyp.typ"
 #let tt = typtyp
 
-#let Time = tt.typedef("Time", tt.struct(minutes: tt.int))
+#let Time = tt.typedef("Time", tt.struct(minutes: tt.int, label: tt.content))
 #let Bounds = tt.typedef("Bounds", tt.struct(start: Time, end: Time))
+
+#let mod(base) = num => {
+  while num >= base {
+    num -= base
+  }
+  num
+}
+
+#let left-pad(w, fill) = t => {
+  while t.len() < w {
+    t = fill + t
+  }
+  t
+}
+
+#let fmt-normalized(hours, minutes) = {
+  let minutes = hours * 60 + minutes
+  let true_minutes = mod(60)(minutes)
+  let true_hours = mod(24)(int(minutes / 60))
+  [ #{ left-pad(2, "0")(str(true_hours)) + "h" + left-pad(2, "0")(str(true_minutes)) } ]
+}
 
 #let from-hm(hours, minutes) = {
   tt.is(tt.int, hours)
   tt.is(tt.int, minutes)
-  tt.ret(Time, (minutes: hours * 60 + minutes))
+  tt.ret(Time, (minutes: hours * 60 + minutes, label: fmt-normalized(hours, minutes)))
 }
 
 #let compare(t1, t2) = {
@@ -38,7 +59,8 @@
 #let offset(t, dt) = {
   tt.is(Time, t)
   tt.is(Time, dt)
-  tt.ret(Time, (minutes: t.minutes + dt.minutes))
+  let minutes = t.minutes + dt.minutes
+  tt.ret(Time, (minutes: minutes, label: fmt-normalized(0, minutes)))
 }
 
 #let inbounds(bounds, t) = {

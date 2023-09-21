@@ -113,7 +113,7 @@
     later(15, short(1, 2, da_networks)[1002]),
     full(2, fp_and_types)[1002],
     full(2, combinatorics)[1004],
-    full(2, analysis_algo)[1002],
+    full(3, analysis_algo)[1002],
   ),
   thu: (
     full(1, abstract_interp)[1004],

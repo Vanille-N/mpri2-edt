@@ -19,7 +19,7 @@
 )
 
 #let show-hour-lines(bounds, notable) = {
-  for (label, hour) in notable {
+  for hour in notable {
     let vpos = time.absolute(bounds, hour)
     // This is a hack: we need to rescale to the size of the table without titles
     let real_vpos = (vpos * (100% - title_ratio) + title_ratio) * table_ratio
@@ -39,7 +39,7 @@
       top + left,
       dx: 0%,
       dy: real_vpos,
-      text(fill: gray.darken(40%), label),
+      text(fill: gray.darken(40%), hour.label),
     )
   }
 }
@@ -112,8 +112,8 @@
   }
 
   let notable-hours = range(24)
-    .map(h => (label: [#{h}h00], hour: time.from-hm(h, 0)))
-    .filter(h => time.inbounds(day-bounds, h.hour))
+    .map(h => time.from-hm(h, 0))
+    .filter(h => time.inbounds(day-bounds, h))
 
   show-hour-lines(day-bounds, notable-hours)
 
