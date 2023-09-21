@@ -79,6 +79,12 @@
   ects: 3,
 )
 
+#let later(minutes, class) = {
+  tt.is(classes.TimeClass, class)
+  class.start = time.offset(class.start, time.from-hm(0, minutes))
+  class
+}
+
 // Static timetable
 #let week = tt.ret(classes.Week, (
   mon: (
@@ -104,7 +110,7 @@
   wed: (
     short(1, 1, cryptanalysis)[1004],
     short(1, 2, error_corr)[1004],
-    short(1, 2, da_networks)[1002],
+    later(15, short(1, 2, da_networks)[1002]),
     full(2, fp_and_types)[1002],
     full(2, combinatorics)[1004],
     full(2, analysis_algo)[1002],
