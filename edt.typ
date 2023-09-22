@@ -100,20 +100,21 @@
   )
 
   let day-bounds = time.empty
+  let notable-hours = ()
   let ects = 0
   for day in ( week.mon, week.tue, week.wed, week.thu, week.fri ) {
     for class in day {
       if class.descr in chosen {
         ects += class.ects
-        day-bounds = time.extend(day-bounds, class.start)
-        day-bounds = time.extend(day-bounds, time.offset(class.start, class.len))
+        let start = class.start
+        let end = time.offset(class.start, class.len)
+        day-bounds = time.extend(day-bounds, start)
+        day-bounds = time.extend(day-bounds, end)
+        if start not in notable-hours { notable-hours.push(start) }
+        if end not in notable-hours { notable-hours.push(end) }
       }
     }
   }
-
-  let notable-hours = range(24)
-    .map(h => time.from-hm(h, 0))
-    .filter(h => time.inbounds(day-bounds, h))
 
   show-hour-lines(day-bounds, notable-hours)
 
