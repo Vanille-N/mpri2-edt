@@ -44,7 +44,7 @@
   }
 }
 
-#let show-classes(chosen, all, day-bounds) = {
+#let show-classes(chosen, all, day-bounds, markers: ()) = {
   tt.is(tt.array(classes.Class), chosen)
   tt.is(tt.array(classes.TimeClass), all)
   tt.is(time.Bounds, day-bounds)
@@ -73,9 +73,19 @@
       class_cell(class, dy: dy, dx: dx, height: height, width: width)
     }
   }
+  for mk in markers {
+    let dx = 50%
+    let dy = time.absolute(day-bounds, mk.time)
+    place(
+      top + left,
+      dx: dx,
+      dy: dy,
+      align(center)[ #mk.marker #mk.time.label]
+    )
+  }
 }
 
-#let day(name, chosen, d, day-bounds) = {
+#let day(name, chosen, d, day-bounds, markers: ()) = {
   tt.is(tt.str, name)
   tt.is(tt.array(classes.Class), chosen)
   tt.is(classes.Day, d)
@@ -84,13 +94,14 @@
     columns: (100%,),
     rows: (title_ratio, 100% - title_ratio),
     align(center, text(size: 18pt, weight: "bold")[#name]),
-    show-classes(chosen, d, day-bounds),
+    show-classes(chosen, d, day-bounds, markers: markers),
   )
 }
 
 #let conf(
   week,
   chosen,
+  markers: (),
 ) = {
   tt.is(classes.Week, week)
   tt.is(tt.array(classes.Class), chosen)
@@ -115,6 +126,11 @@
       }
     }
   }
+  let wmarks = (mon: (), tue: (), wed: (), thu: (), fri: ())
+  for mk in markers {
+    day-bounds = time.extend(day-bounds, mk.time)
+    wmarks.at(mk.day).push(mk)
+  }
 
   show-hour-lines(day-bounds, notable-hours)
 
@@ -124,11 +140,11 @@
     row-gutter: (large_gutter,),
     rows: (table_ratio,),
     [],
-    day("Monday", chosen, week.mon, day-bounds),
-    day("Tuesday", chosen, week.tue, day-bounds),
-    day("Wednesday", chosen, week.wed, day-bounds),
-    day("Thursday", chosen, week.thu, day-bounds),
-    day("Friday", chosen, week.fri, day-bounds),
+    day("Monday", chosen, week.mon, day-bounds, markers: wmarks.mon),
+    day("Tuesday", chosen, week.tue, day-bounds, markers: wmarks.tue),
+    day("Wednesday", chosen, week.wed, day-bounds, markers: wmarks.wed),
+    day("Thursday", chosen, week.thu, day-bounds, markers: wmarks.thu),
+    day("Friday", chosen, week.fri, day-bounds, markers: wmarks.fri),
     [],
   )
   text(size: 12pt)[Totalling * #ects * ECTS]

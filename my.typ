@@ -4,6 +4,7 @@
 #import "classes.typ"
 #import "mpri.typ"
 #import "ext.typ"
+#import "marker.typ"
 
 // Edit this: uncomment exactly the classes you take
 #let chosen = tt.ret(tt.array(classes.Class), (
@@ -74,5 +75,9 @@
 ))
 
 #show: doc => [
-  #edt.conf(classes.merge(mpri.week, ext.week), chosen)
+  #edt.conf(
+    classes.merge(mpri.week, ext.week),
+    chosen,
+    markers: marker.rer_c,
+  )
 ]
